@@ -34,10 +34,14 @@ All significant AI interactions must be logged:
 
 - **Daily logs**: `docs/ai-philosophy/logs/YYYY-MM-DD.md` - Track decisions, agreements, and context
 - **Requirements**: `docs/ai-philosophy/logs/YYYY-MM-DD-phase1-requirements.md` - Document requirement changes
-- **Research**: `docs/ai-philosophy/research/<topic>.md` - Technical investigation results
-- **Design**: `docs/ai-philosophy/design/<topic>.md` - Architecture and design decisions
+- **Research**: `docs/ai-philosophy/research/<topic>.md` - Technical investigation results (no date prefix)
+- **Design**: `docs/ai-philosophy/design/<topic>.md` - Architecture and design decisions (no date prefix)
 
-When making philosophy changes or important decisions, mark commits with `[philosophy]` prefix.
+**Key Rules**:
+- logs/ uses date prefixes (YYYY-MM-DD-*.md)
+- research/ and design/ use topic names only, with creation date inside the document
+- When making philosophy changes or important decisions, mark commits with `[philosophy]` prefix
+- See `docs/ai-philosophy/DOCUMENTATION.md` for complete naming conventions
 
 ---
 
@@ -247,6 +251,23 @@ When moving from `prototypes/` to `src/`:
 
 The project is in **Phase 1** - exploring and refining requirements through UI prototypes in `prototypes/ui-sketches/`. Production implementation in `src/` will begin once requirements are solidified.
 
+**Important**: No package.json or npm commands exist yet. The project currently consists only of:
+- HTML prototypes in `prototypes/ui-sketches/`
+- Design and philosophy documentation in `docs/ai-philosophy/`
+
+### Viewing Prototypes
+
+```bash
+# Open prototypes in browser (from repo root)
+# On Windows: Use file explorer to navigate to prototypes/ui-sketches/ and open index.html
+# On WSL: Use a command like `explorer.exe prototypes/ui-sketches/index.html`
+
+# Available prototypes:
+# - index.html: Navigation hub to all prototypes
+# - customer-*.html: Customer-facing screens (home, create request, request list)
+# - stylist-*.html: Stylist-facing screens (auth, request list, request detail, edit)
+```
+
 ### WSL Commands
 
 ```bash
@@ -263,6 +284,32 @@ git push -u origin <branch>
 
 # Test SSH auth
 ssh -T git@github.com
+```
+
+### Future Development Commands (Phase 2 - Not Yet Available)
+
+Once production implementation begins in `src/`, these commands will be relevant:
+
+```bash
+# Install dependencies
+npm install
+
+# Frontend development
+cd src/frontend
+npm run dev
+
+# Backend development
+cd src/backend
+npm run dev
+
+# Run tests
+npm test
+
+# Build for production
+npm run build
+
+# Lint code
+npm run lint
 ```
 
 ---
