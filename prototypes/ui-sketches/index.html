@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>サロン予約システム - UI プロトタイプ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .screen-container {
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .screen {
+            max-width: 428px;
+            margin: 0 auto;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        .screen-title {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto py-8">
+        <h1 class="text-2xl font-bold mb-6 text-center">サロン予約システム - UI プロトタイプ</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <a href="customer-home.html" class="block p-4 bg-white rounded-lg shadow hover:shadow-md">
+                <h2 class="font-semibold mb-2">お客さん側</h2>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>• ホーム画面</li>
+                    <li>• 予約リクエスト作成（シンプル版）</li>
+                    <li>• 予約リクエスト作成（カレンダーUI版）</li>
+                    <li>• 予約リクエスト一覧</li>
+                </ul>
+            </a>
+            <a href="stylist-requests.html" class="block p-4 bg-white rounded-lg shadow hover:shadow-md">
+                <h2 class="font-semibold mb-2">美容師側</h2>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>• 予約リクエスト管理</li>
+                    <li>• リクエスト詳細・操作</li>
+                    <li>• リクエスト編集（調整中）</li>
+                    <li>• Google認証・カレンダー選択</li>
+                </ul>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
