@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LIFF 認証テスト - サロン予約アプリ</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+          sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 500px;
+        width: 100%;
+        padding: 40px;
+      }
+
+      h1 {
+        color: #333;
+        font-size: 28px;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      .subtitle {
+        color: #666;
+        font-size: 14px;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .status {
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-size: 14px;
+      }
+
+      .status.loading {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+      }
+
+      .status.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .status.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      .status.info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+
+      .profile-card {
+        display: none;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        color: white;
+        margin-bottom: 20px;
+      }
+
+      .profile-card.visible {
+        display: block;
+      }
+
+      .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      .profile-picture {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 3px solid white;
+        object-fit: cover;
+      }
+
+      .profile-picture.placeholder {
+        background: rgba(255, 255, 255, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+      }
+
+      .profile-name {
+        font-size: 22px;
+        font-weight: bold;
+      }
+
+      .profile-detail {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 10px 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        font-size: 14px;
+      }
+
+      .profile-detail:last-child {
+        margin-bottom: 0;
+      }
+
+      .profile-detail strong {
+        display: block;
+        font-size: 11px;
+        opacity: 0.8;
+        margin-bottom: 5px;
+      }
+
+      .profile-detail code {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+      }
+
+      .info-section {
+        display: none;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+
+      .info-section.visible {
+        display: block;
+      }
+
+      .info-section h3 {
+        color: #333;
+        font-size: 16px;
+        margin-bottom: 15px;
+      }
+
+      .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #e9ecef;
+        font-size: 14px;
+      }
+
+      .info-item:last-child {
+        border-bottom: none;
+      }
+
+      .info-label {
+        color: #666;
+        font-weight: 500;
+      }
+
+      .info-value {
+        color: #333;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+      }
+
+      .info-value.success {
+        color: #28a745;
+        font-weight: bold;
+      }
+
+      .info-value.error {
+        color: #dc3545;
+        font-weight: bold;
+      }
+
+      button {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .test-results {
+        display: none;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 2px solid #e9ecef;
+      }
+
+      .test-results.visible {
+        display: block;
+      }
+
+      .test-results h2 {
+        color: #333;
+        font-size: 20px;
+        margin-bottom: 15px;
+      }
+
+      .test-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+
+      .test-icon {
+        font-size: 20px;
+      }
+
+      .test-icon.success {
+        color: #28a745;
+      }
+
+      .test-icon.error {
+        color: #dc3545;
+      }
+
+      .test-icon.pending {
+        color: #ffc107;
+      }
+
+      .footer {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #e9ecef;
+        text-align: center;
+        color: #666;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>LIFF 認証テスト</h1>
+      <p class="subtitle">LINE LIFF SDK の動作確認プロトタイプ</p>
+
+      <div id="statusMessage" class="status loading">LIFF を初期化中...</div>
+
+      <div id="profileCard" class="profile-card">
+        <div class="profile-header">
+          <div id="profilePicture" class="profile-picture placeholder">👤</div>
+          <div class="profile-name" id="profileName">読み込み中...</div>
+        </div>
+        <div class="profile-detail">
+          <strong>ユーザーID</strong>
+          <code id="userId">-</code>
+        </div>
+        <div class="profile-detail" id="statusMessageDetail" style="display: none">
+          <strong>ステータスメッセージ</strong>
+          <span id="statusMessageValue">-</span>
+        </div>
+      </div>
+
+      <div id="infoSection" class="info-section">
+        <h3>LIFF 情報</h3>
+        <div class="info-item">
+          <span class="info-label">LIFF ID</span>
+          <span class="info-value" id="liffIdValue">-</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">ログイン状態</span>
+          <span class="info-value" id="loginStatus">-</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">環境</span>
+          <span class="info-value" id="liffContext">-</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">OS</span>
+          <span class="info-value" id="liffOS">-</span>
+        </div>
+      </div>
+
+      <div id="testResults" class="test-results">
+        <h2>動作確認結果</h2>
+        <div class="test-item">
+          <span class="test-icon pending" id="testInit">⏳</span>
+          <span>LIFF 初期化</span>
+        </div>
+        <div class="test-item">
+          <span class="test-icon pending" id="testLogin">⏳</span>
+          <span>ログイン状態確認</span>
+        </div>
+        <div class="test-item">
+          <span class="test-icon pending" id="testProfile">⏳</span>
+          <span>プロフィール取得</span>
+        </div>
+        <div class="test-item">
+          <span class="test-icon pending" id="testToken">⏳</span>
+          <span>アクセストークン取得</span>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>Phase 1 プロトタイプ - 技術検証用</p>
+        <p>prototypes/mvp/liff-auth-test/</p>
+      </div>
+    </div>
+
+    <script>
+      // LIFF ID の設定（環境変数から読み込むか、ここに直接記述）
+      // テスト時は実際の LIFF ID に置き換えてください
+      const LIFF_ID = "2008484018-nMrvLmk6";
+
+      // 状態管理
+      let liffInitialized = false;
+      let userProfile = null;
+
+      // DOM要素
+      const statusMessage = document.getElementById("statusMessage");
+      const profileCard = document.getElementById("profileCard");
+      const infoSection = document.getElementById("infoSection");
+      const testResults = document.getElementById("testResults");
+
+      // ステータスメッセージ更新
+      function updateStatus(message, type = "loading") {
+        statusMessage.textContent = message;
+        statusMessage.className = `status ${type}`;
+      }
+
+      // テスト結果アイコン更新
+      function updateTestResult(testId, status) {
+        const icon = document.getElementById(testId);
+        if (!icon) return;
+
+        icon.className = `test-icon ${status}`;
+        icon.textContent = status === "success" ? "✅" : status === "error" ? "❌" : "⏳";
+      }
+
+      // プロフィール表示
+      function displayProfile(profile) {
+        document.getElementById("profileName").textContent = profile.displayName;
+        document.getElementById("userId").textContent = profile.userId;
+
+        if (profile.pictureUrl) {
+          const img = document.createElement("img");
+          img.src = profile.pictureUrl;
+          img.className = "profile-picture";
+          img.alt = profile.displayName;
+          document.getElementById("profilePicture").replaceWith(img);
+          img.id = "profilePicture";
+        }
+
+        if (profile.statusMessage) {
+          document.getElementById("statusMessageDetail").style.display = "block";
+          document.getElementById("statusMessageValue").textContent = profile.statusMessage;
+        }
+
+        profileCard.classList.add("visible");
+      }
+
+      // LIFF情報表示
+      function displayLiffInfo() {
+        document.getElementById("liffIdValue").textContent = LIFF_ID;
+
+        const isLoggedIn = liff.isLoggedIn();
+        const loginStatusEl = document.getElementById("loginStatus");
+        loginStatusEl.textContent = isLoggedIn ? "ログイン済み" : "未ログイン";
+        loginStatusEl.className = isLoggedIn ? "info-value success" : "info-value error";
+
+        const context = liff.getContext();
+        if (context) {
+          document.getElementById("liffContext").textContent = context.type || "unknown";
+        }
+
+        const os = liff.getOS();
+        document.getElementById("liffOS").textContent = os || "unknown";
+
+        infoSection.classList.add("visible");
+      }
+
+      // エラーハンドリング
+      function handleError(error, context) {
+        console.error(`Error in ${context}:`, error);
+
+        let message = "予期しないエラーが発生しました";
+
+        if (error.code) {
+          switch (error.code) {
+            case "INIT_FAILED":
+              message = "LIFF の初期化に失敗しました";
+              break;
+            case "UNAUTHORIZED":
+              message = "ログインが必要です";
+              break;
+            case "FORBIDDEN":
+              message = "プロフィール権限が必要です";
+              break;
+            case "INVALID_CONFIG":
+              message = "設定エラーです";
+              break;
+            default:
+              message = `エラー: ${error.code}`;
+          }
+        }
+
+        return message;
+      }
+
+      // メイン処理
+      async function initializeLiff() {
+        try {
+          // LIFF ID チェック
+          if (LIFF_ID === "YOUR_LIFF_ID_HERE") {
+            updateStatus("⚠️ LIFF ID を設定してください（index.html の LIFF_ID 変数）", "error");
+            updateTestResult("testInit", "error");
+            return;
+          }
+
+          // テスト結果セクション表示
+          testResults.classList.add("visible");
+
+          // 1. LIFF 初期化
+          updateStatus("LIFF を初期化中...", "loading");
+          await liff.init({ liffId: LIFF_ID });
+          liffInitialized = true;
+          updateTestResult("testInit", "success");
+          updateStatus("LIFF の初期化が完了しました", "success");
+
+          // LIFF情報表示
+          displayLiffInfo();
+
+          // 2. ログイン状態確認
+          updateStatus("ログイン状態を確認中...", "loading");
+          if (!liff.isLoggedIn()) {
+            updateTestResult("testLogin", "error");
+            updateStatus("未ログインです。ログインしてください。", "info");
+
+            // 自動ログイン（開発時はコメントアウト可）
+            // liff.login();
+            return;
+          }
+          updateTestResult("testLogin", "success");
+
+          // 3. プロフィール取得
+          updateStatus("プロフィールを取得中...", "loading");
+          userProfile = await liff.getProfile();
+          updateTestResult("testProfile", "success");
+          displayProfile(userProfile);
+
+          // 4. アクセストークン取得
+          updateStatus("アクセストークンを確認中...", "loading");
+          const accessToken = liff.getAccessToken();
+          if (accessToken) {
+            updateTestResult("testToken", "success");
+            console.log("Access Token (first 20 chars):", accessToken.substring(0, 20) + "...");
+          } else {
+            updateTestResult("testToken", "error");
+          }
+
+          // 完了
+          updateStatus("✅ すべての動作確認が完了しました", "success");
+
+          console.log("=== LIFF 認証テスト結果 ===");
+          console.log("LIFF初期化: OK");
+          console.log("ログイン状態: OK");
+          console.log("プロフィール取得: OK");
+          console.log("ユーザーID:", userProfile.userId);
+          console.log("表示名:", userProfile.displayName);
+          console.log("アクセストークン: OK");
+        } catch (error) {
+          const errorMessage = handleError(error, "LIFF initialization");
+          updateStatus(`❌ ${errorMessage}`, "error");
+
+          // テスト結果更新
+          if (!liffInitialized) {
+            updateTestResult("testInit", "error");
+          } else if (error.code === "FORBIDDEN") {
+            updateTestResult("testProfile", "error");
+          }
+
+          console.error("LIFF Error:", error);
+        }
+      }
+
+      // LIFF SDK ロード後に初期化
+      window.addEventListener("load", () => {
+        if (typeof liff === "undefined") {
+          updateStatus("❌ LIFF SDK の読み込みに失敗しました", "error");
+          return;
+        }
+        initializeLiff();
+      });
+    </script>
+  </body>
+</html>
