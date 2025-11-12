@@ -5,6 +5,7 @@
 ---
 
 ### ブランチ種別
+
 - main
   - 常にデプロイ可能（破壊的変更は PR レビュー経由）
   - 直接コミットは避け、原則 PR 経由で反映
@@ -18,6 +19,7 @@
 ---
 
 ### 命名・コミットメッセージ
+
 - ブランチ名: 動詞/目的が分かる短い英語（例: `feat/ai-philosophy-phase1-setup`）
 - コミット: プレフィックス推奨
   - `feat:`, `fix:`, `docs:`, `refactor:`, `chore:`
@@ -26,6 +28,7 @@
 ---
 
 ### 典型フロー
+
 ```bash
 # main 最新化
 git checkout main
@@ -45,11 +48,13 @@ git push -u origin feat/<summary>
 ---
 
 ### リベース/マージ戦略
+
 - 原則 squash merge（履歴を簡潔に）
 - 長期ブランチは避け、こまめに main を取り込む（`git pull --rebase` 推奨）
 
 ---
 
 ### PR の粒度
+
 - 1 目的 1 PR（レビュー可能サイズを維持）
 - 変更範囲が広い場合は、準備 PR → 本体 PR に分割

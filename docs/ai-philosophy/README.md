@@ -56,8 +56,8 @@ AI 駆動開発の本質は、
 - 重要な合意・原則変更は必ず本書の該当箇所に反映し、コミットメッセージで明記します。
 - Phase 分離方針（案 1）は `docs/ai-philosophy/PHASES.md` を参照してください。
 - 要件ログ運用ルールは `docs/ai-philosophy/REQUIREMENTS.md` を参照してください。
- - 共同作業（WSL方針）は `docs/ai-philosophy/COLLABORATION.md` を参照してください。
- - ブランチ運用ルールは `docs/ai-philosophy/BRANCHING.md` を参照してください。
+- 共同作業（WSL 方針）は `docs/ai-philosophy/COLLABORATION.md` を参照してください。
+- ブランチ運用ルールは `docs/ai-philosophy/BRANCHING.md` を参照してください。
 
 ---
 
@@ -66,5 +66,5 @@ AI 駆動開発の本質は、
 - ログ運用ガイド: `docs/ai-philosophy/LOGGING.md`
 - Phase 分離方針: `docs/ai-philosophy/PHASES.md`
 - 要件ログ運用: `docs/ai-philosophy/REQUIREMENTS.md`
- - 共同作業（WSL 方針）: `docs/ai-philosophy/COLLABORATION.md`
- - ブランチ運用ルール: `docs/ai-philosophy/BRANCHING.md`
+- 共同作業（WSL 方針）: `docs/ai-philosophy/COLLABORATION.md`
+- ブランチ運用ルール: `docs/ai-philosophy/BRANCHING.md`
