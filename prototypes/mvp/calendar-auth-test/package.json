@@ -1,0 +1,17 @@
+{
+  "name": "calendar-auth-test",
+  "version": "1.0.0",
+  "description": "Google Calendar API OAuth 2.0 authentication flow test",
+  "main": "auth.js",
+  "scripts": {
+    "test:list": "node test-list-calendars.js",
+    "test:create": "node test-create-event.js",
+    "test:refresh": "node test-token-refresh.js"
+  },
+  "keywords": ["google-calendar", "oauth2", "authentication"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "googleapis": "^131.0.0"
+  }
+}

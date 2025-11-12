@@ -79,8 +79,8 @@ Phase 1（探索・試作）での要件定義は変化が前提です。履歴�
 ### 保存場所と命名規則
 
 - 保存先: `docs/ai-philosophy/research/`
-- ファイル名: `YYYY-MM-DD-<調査テーマ>.md`
-  - 例: `2025-11-11-line-app-research.md`
+- ファイル名: `<調査テーマ>.md`
+  - 例: `line-app-research.md`
   - テーマは簡潔に（技術名、API名、ツール名など）
 
 ### 記録タイミング
@@ -94,7 +94,7 @@ Phase 1（探索・試作）での要件定義は変化が前提です。履歴�
 ```markdown
 # <調査テーマ> 調査結果
 
-**調査日**: YYYY-MM-DD
+**作成日**: YYYY-MM-DD
 **関連**: [関連する要件ログへのリンク](../logs/YYYY-MM-DD-phase1-requirements.md)
 
 ---
