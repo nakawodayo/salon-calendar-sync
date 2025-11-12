@@ -1,7 +1,7 @@
 # システム設計（たたき台）
 
 **作成日**: 2025-11-11
-**関連**: [Phase 1 要件定義](../logs/2025-11-11-phase1-requirements.md)
+**関連**: [Phase 1 要件定義](../logs/2025-11-11-phase1-requirements.md)、[Google Calendar 予定フォーマット仕様](./google-calendar-event-format.md)
 
 ---
 
@@ -139,10 +139,11 @@
     - **代替案**: シンプルな日付・時間選択（MVP 初期段階）
   - メニュー選択（固定メニューから選択）
   - **所要時間・終了時刻の自動表示**（メニューと開始時刻から自動計算）
-    - カット: 1 時間
-    - カラー: 2 時間
-    - パーマ: 1 時間
-    - 組み合わせで合計時間を計算
+    - カット: 60分
+    - カット + カラー: 180分
+    - カット + パーマ: 120分
+    - カット + カラー + パーマ: 240分
+    - 詳細は[Google Calendar 予定フォーマット仕様](./google-calendar-event-format.md)を参照
   - 顧客名（自動入力: LIFF から取得した表示名）
   - 連絡手段（任意入力）
   - 送信ボタン
@@ -184,10 +185,11 @@
   - 日時変更（カレンダー UI）
   - メニュー変更（固定メニューから選択）
   - **所要時間・終了時刻の自動表示**（メニューと開始時刻から自動計算）
-    - カット: 1 時間
-    - カラー: 2 時間
-    - パーマ: 1 時間
-    - 組み合わせで合計時間を計算
+    - カット: 60分
+    - カット + カラー: 180分
+    - カット + パーマ: 120分
+    - カット + カラー + パーマ: 240分
+    - 詳細は[Google Calendar 予定フォーマット仕様](./google-calendar-event-format.md)を参照
   - 確定（FIX）ボタン（編集内容で Google Calendar に予定作成、Firestore も更新）
   - キャンセルボタン（編集を破棄して一覧に戻る）
 
@@ -424,7 +426,12 @@
   ```
 - **処理**:
   - Google Calendar API から今後の予定を取得
-  - LINE ユーザー ID でフィルタリング（予定の説明欄に保存された情報から）
+  - **LINE ユーザー ID でフィルタリング**（`extendedProperties.private.lineUserId` で検索）
+  - 検索方法: `privateExtendedProperty=lineUserId={LINEユーザーID}`
+  - 現在日時以降の予定を取得（`timeMin=現在日時`）
+  - 開始時刻でソート（`orderBy=startTime`）
+  - 最も近い予定を返す
+  - 詳細は[Google Calendar 予定フォーマット仕様](./google-calendar-event-format.md)を参照
 
 #### 12. 手入力予定の読み取り（双方向同期）
 
@@ -558,23 +565,28 @@
 
 ## データモデル（Firestore）
 
-### 予約リクエスト（reservations）
+### 予約リクエスト（reservationRequests）
 
 ```typescript
 {
   id: string;                    // リクエスト ID
   lineUserId: string;            // LINE ユーザー ID
   customerName: string;          // 顧客名
-  datetime: string;              // 予約希望日時（ISO 8601）
-  menu: string;                  // メニュー
+  datetime: string;              // 予約希望日時（ISO 8601形式: YYYY-MM-DDTHH:mm:ss+09:00）
+  menu: string;                  // メニュー（カット、カット + カラー、カット + パーマ、カット + カラー + パーマ）
   contact: string;               // 連絡手段
   status: "requested" | "adjusting" | "rejected" | "fixed";
   createdAt: Timestamp;          // 作成日時
   updatedAt: Timestamp;          // 更新日時
   calendarEventId?: string;      // Google Calendar のイベント ID（確定時）
-  adjustedDatetime?: string;     // 調整後の日時
+  adjustedDatetime?: string;     // 調整後の日時（ISO 8601形式）
 }
 ```
+
+**Google Calendar との連携**:
+- `calendarEventId` は Google Calendar の予定 ID を保持（双方向参照）
+- Google Calendar 側では `extendedProperties.private.requestId` でこの `id` を参照
+- 詳細は[Google Calendar 予定フォーマット仕様](./google-calendar-event-format.md)を参照
 
 ### お知らせ（announcements）
 
@@ -649,7 +661,11 @@
 - [x] 美容師側の認証方法の決定（Google アカウント認証に決定）
 - [x] エラーハンドリングとリトライロジック（詳細は[エラーハンドリングとリトライロジック方針](./2025-11-11-error-handling-retry.md)を参照）
 - [x] 予約承認フローの再検討（承認と FIX の統合、詳細は[予約リクエストフローの再検討](./2025-11-11-reservation-flow-revision.md)を参照）
-- [ ] Google Calendar の予定フォーマット取り決め（状態情報の保存方法）
+- [x] **Google Calendar の予定フォーマット取り決め** ✅ 完了（2025-11-12）
+  - 詳細は[Google Calendar 予定フォーマット仕様](./google-calendar-event-format.md)を参照
+  - アプリ作成予定の識別方法（extendedProperties.private）
+  - 手入力予定との区別方法
+  - Firestore との連携方法
 - [ ] 認証情報（トークン）の保存方法（暗号化、セキュリティ）
 - [ ] カレンダー選択 UI（複数カレンダーがある場合の選択方法）
 - [ ] 同時リクエストの競合処理（原子性の担保）
