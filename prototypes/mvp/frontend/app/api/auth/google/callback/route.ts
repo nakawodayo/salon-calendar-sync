@@ -37,14 +37,15 @@ export async function GET(request: NextRequest) {
     const existingToken = await getStylistToken(email);
 
     // Save tokens to Firestore (メールアドレスをドキュメント ID として使用)
+    // Firestore の setDoc は undefined を受け付けないため、存在するフィールドのみ含める
     const stylistToken: StylistToken = {
       access_token: tokens.access_token || '',
-      refresh_token: tokens.refresh_token || undefined,
       scope: tokens.scope || '',
       token_type: tokens.token_type || 'Bearer',
-      expiry_date: tokens.expiry_date || undefined,
-      selectedCalendarId: existingToken?.selectedCalendarId,
-      selectedCalendarName: existingToken?.selectedCalendarName,
+      ...(tokens.refresh_token && { refresh_token: tokens.refresh_token }),
+      ...(tokens.expiry_date && { expiry_date: tokens.expiry_date }),
+      ...(existingToken?.selectedCalendarId && { selectedCalendarId: existingToken.selectedCalendarId }),
+      ...(existingToken?.selectedCalendarName && { selectedCalendarName: existingToken.selectedCalendarName }),
     };
 
     await saveStylistToken(email, stylistToken);
