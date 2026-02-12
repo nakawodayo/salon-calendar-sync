@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getReservation, getStylistToken, updateReservationStatus } from '@/lib/firestore';
 import { createOAuth2Client, setCredentials, getCalendarClient } from '@/lib/google-auth';
+import { getStylistId } from '@/lib/stylist-session';
 import { MENUS } from '@/types/reservation';
-
-const STYLIST_ID = 'default-stylist';
 
 /**
  * メニュー名から所要時間（分）を取得
@@ -46,6 +45,15 @@ export async function POST(
   try {
     const { id } = await params;
 
+    // Cookie からスタイリスト ID を取得
+    const stylistId = await getStylistId();
+    if (!stylistId) {
+      return NextResponse.json(
+        { error: 'Google認証が必要です' },
+        { status: 401 }
+      );
+    }
+
     // Get reservation from Firestore
     const reservation = await getReservation(id);
     if (!reservation) {
@@ -63,7 +71,7 @@ export async function POST(
     }
 
     // Get stylist token
-    const token = await getStylistToken(STYLIST_ID);
+    const token = await getStylistToken(stylistId);
     if (!token || !token.access_token) {
       return NextResponse.json(
         { error: 'Google認証が必要です' },
@@ -112,9 +120,9 @@ export async function POST(
       },
     };
 
-    // Insert event into Google Calendar
+    // Insert event into Google Calendar (選択カレンダーまたはプライマリ)
     const calendarResponse = await calendar.events.insert({
-      calendarId: 'primary',
+      calendarId: token.selectedCalendarId || 'primary',
       requestBody: event,
     });
 

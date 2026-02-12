@@ -5,6 +5,8 @@ import Link from 'next/link';
 
 export default function StylistAuthPage() {
   const [authStatus, setAuthStatus] = useState<'checking' | 'authenticated' | 'unauthenticated'>('checking');
+  const [email, setEmail] = useState<string | null>(null);
+  const [calendarName, setCalendarName] = useState<string | null>(null);
 
   useEffect(() => {
     checkAuthStatus();
@@ -16,6 +18,8 @@ export default function StylistAuthPage() {
       if (res.ok) {
         const data = await res.json();
         setAuthStatus(data.authenticated ? 'authenticated' : 'unauthenticated');
+        setEmail(data.email || null);
+        setCalendarName(data.selectedCalendarName || null);
       } else {
         setAuthStatus('unauthenticated');
       }
@@ -56,9 +60,28 @@ export default function StylistAuthPage() {
               <h2 className="text-lg font-semibold text-gray-900 mb-2">
                 Google認証済み
               </h2>
-              <p className="text-gray-500 text-sm mb-6">
+              {email && (
+                <p className="text-gray-500 text-sm mb-2">
+                  {email}
+                </p>
+              )}
+              <p className="text-gray-500 text-sm mb-4">
                 Googleアカウントとの連携が完了しています。
               </p>
+
+              {/* カレンダー情報 */}
+              <div className="bg-gray-50 rounded-lg p-3 mb-6">
+                <p className="text-sm text-gray-600">
+                  書き込み先: <span className="font-medium text-gray-900">{calendarName || '未選択（メインカレンダー）'}</span>
+                </p>
+                <Link
+                  href="/stylist/calendar-select"
+                  className="text-blue-600 hover:text-blue-700 text-xs font-medium mt-1 inline-block"
+                >
+                  カレンダーを変更
+                </Link>
+              </div>
+
               <Link
                 href="/stylist/requests"
                 className="inline-block w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors text-center"

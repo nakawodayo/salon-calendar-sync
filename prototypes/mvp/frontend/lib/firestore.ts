@@ -114,3 +114,19 @@ export async function getStylistToken(stylistId: string): Promise<StylistToken |
   if (!docSnap.exists()) return null;
   return docSnap.data() as StylistToken;
 }
+
+/**
+ * スタイリストの選択カレンダーを更新（カレンダー選択フィールドのみ部分更新）
+ */
+export async function updateStylistCalendarSelection(
+  stylistId: string,
+  calendarId: string,
+  calendarName: string
+): Promise<void> {
+  const docRef = doc(db, STYLIST_TOKENS_COLLECTION, stylistId);
+  await updateDoc(docRef, {
+    selectedCalendarId: calendarId,
+    selectedCalendarName: calendarName,
+    updatedAt: Timestamp.now(),
+  });
+}

@@ -122,3 +122,43 @@
 2. The Stylist App shall 白背景のヘッダーバーを sticky で表示し、サブページには戻るナビゲーションを含める
 3. While ページデータの取得中, the Stylist App shall スピナーと「読み込み中...」テキストを表示する
 4. The Stylist App shall モバイルファーストのレスポンシブレイアウトを採用する（最大幅: max-w-2xl）
+
+### Requirement 11: Google Calendar 選択機能
+**Objective:** As a スタイリスト, I want 予約承認時のイベント書き込み先カレンダーを選択できること, so that 用途に応じたカレンダーで予約管理ができる
+
+#### Acceptance Criteria
+1. When OAuth 認証完了後, the Auth API shall カレンダー選択ページ `/stylist/calendar-select` にリダイレクトする
+2. When カレンダー選択ページが開かれたとき, the Stylist App shall Google Calendar API からカレンダー一覧を取得・表示する
+3. The Stylist App shall 各カレンダーにカレンダー名・背景色を表示し、選択可能なカード形式で提供する
+4. While カレンダー一覧取得中, the Stylist App shall スピナーと「カレンダー一覧を取得中...」テキストを表示する
+5. If カレンダー一覧取得に失敗した場合, then the Stylist App shall エラーメッセージと「再試行」ボタンを表示する
+6. When カレンダー選択後「決定」がクリックされたとき, the Stylist App shall `POST /api/auth/google/calendar-select` にカレンダー ID を送信する
+7. When カレンダー保存が成功したとき, the Stylist App shall `/stylist/requests` にリダイレクトする
+8. When `GET /api/auth/google/calendars` にアクセスされたとき, the Calendar API shall calendarList.list を呼び出し書き込み可能カレンダー一覧を返す
+9. The Calendar API shall アクセスロールが `writer` または `owner` のカレンダーのみ返す
+10. If スタイリストのトークンが不在または無効の場合, then the Calendar API shall HTTP 401 を返す
+11. When `POST /api/auth/google/calendar-select` にアクセスされたとき, the Calendar API shall calendarId を Firestore に保存する
+12. If calendarId が未指定の場合, then the Calendar API shall HTTP 400 を返す
+13. When 承認時に `selectedCalendarId` が保存されているとき, the Approve API shall そのカレンダーにイベントを作成する
+14. If `selectedCalendarId` が未保存の場合, then the Approve API shall `'primary'` カレンダーをフォールバックとして使用する
+15. When 認証済み状態のとき, the Stylist App shall 認証ページで現在選択中のカレンダー名と「カレンダーを変更」リンクを表示する
+16. When `GET /api/auth/google/status` にアクセスされたとき, the Auth API shall `selectedCalendarId` と `selectedCalendarName` もレスポンスに含める
+17. When 再認証（トークン更新）時, the Auth API shall 既存の `selectedCalendarId` を保持して新トークンに引き継ぐ
+18. When 再認証時にカレンダー選択済みの場合, the Auth API shall `/stylist/requests` に直接リダイレクトする
+
+### Requirement 12: マルチスタイリスト識別
+**Objective:** As a スタイリスト, I want 自分の Google アカウントで独立して認証・操作できること, so that 複数のスタイリストが別々のカレンダーで予約管理できる
+
+#### Acceptance Criteria
+1. The Auth API shall OAuth スコープに `openid` と `userinfo.email` を含める
+2. When OAuth コールバックが呼ばれたとき, the Auth API shall Google userinfo API からメールアドレスを取得する
+3. The Auth API shall Firestore ドキュメント ID としてメールアドレスを使用する（`stylistTokens/{email}`）
+4. When OAuth コールバック成功後, the Auth API shall `stylist_email` Cookie（HttpOnly、有効期限 1 年、path=/）をセットする
+5. When `GET /api/auth/google/status` にアクセスされたとき, the Auth API shall Cookie からスタイリスト ID を取得する
+6. When `GET /api/auth/google/calendars` にアクセスされたとき, the Calendar API shall Cookie からスタイリスト ID を取得する
+7. When `POST /api/auth/google/calendar-select` にアクセスされたとき, the Calendar API shall Cookie からスタイリスト ID を取得する
+8. When `POST /api/stylist/requests/[id]/approve` にアクセスされたとき, the Approve API shall Cookie からスタイリスト ID を取得する
+9. If Cookie が不在の場合, then 各 API shall HTTP 401 を返す（status API は `authenticated: false` を返す）
+10. When `GET /api/auth/google/status` にアクセスされたとき, the Auth API shall スタイリストのメールアドレスをレスポンスに含める
+11. When 認証済みのとき, the Stylist App shall 認証ページにログイン中のメールアドレスを表示する
+12. When 異なる Google アカウントで認証した場合, the Auth API shall 別々の Firestore ドキュメントにトークンを保存する

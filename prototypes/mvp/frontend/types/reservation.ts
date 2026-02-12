@@ -37,6 +37,8 @@ export interface StylistToken {
   scope: string;
   token_type: string;
   expiry_date?: number;
+  selectedCalendarId?: string;
+  selectedCalendarName?: string;
 }
 
 /**

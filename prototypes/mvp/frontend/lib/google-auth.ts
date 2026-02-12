@@ -2,6 +2,8 @@ import { google } from 'googleapis';
 import type { StylistToken } from '@/types/reservation';
 
 const SCOPES = [
+  'openid',
+  'https://www.googleapis.com/auth/userinfo.email',
   'https://www.googleapis.com/auth/calendar.readonly',
   'https://www.googleapis.com/auth/calendar.events',
 ];
@@ -56,4 +58,16 @@ export function setCredentials(
  */
 export function getCalendarClient(oauth2Client: InstanceType<typeof google.auth.OAuth2>) {
   return google.calendar({ version: 'v3', auth: oauth2Client });
+}
+
+/**
+ * OAuth2 クライアントからユーザーのメールアドレスを取得
+ */
+export async function getUserEmail(oauth2Client: InstanceType<typeof google.auth.OAuth2>): Promise<string> {
+  const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
+  const { data } = await oauth2.userinfo.get();
+  if (!data.email) {
+    throw new Error('メールアドレスを取得できませんでした');
+  }
+  return data.email;
 }

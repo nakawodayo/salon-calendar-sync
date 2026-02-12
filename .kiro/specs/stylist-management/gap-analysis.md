@@ -170,6 +170,50 @@
 
 **カバレッジ: 4/4 (100%)**
 
+### Requirement 11: Google Calendar 選択機能
+
+| AC# | 要件 | 実装状況 | 対応ファイル |
+|-----|------|----------|-------------|
+| 11.1 | OAuth 認証後にカレンダー選択ページへリダイレクト | **実装済み** | `app/api/auth/google/callback/route.ts:49-51` |
+| 11.2 | カレンダー一覧の取得・表示 | **実装済み** | `app/stylist/calendar-select/page.tsx:25-46` |
+| 11.3 | カレンダー名・背景色のカード形式表示 | **実装済み** | `app/stylist/calendar-select/page.tsx:114-135` |
+| 11.4 | 取得中のスピナー表示 | **実装済み** | `app/stylist/calendar-select/page.tsx:90-95` |
+| 11.5 | 取得失敗時のエラー + 再試行ボタン | **実装済み** | `app/stylist/calendar-select/page.tsx:97-106` |
+| 11.6 | 「決定」クリックで calendar-select API に送信 | **実装済み** | `app/stylist/calendar-select/page.tsx:52-70` |
+| 11.7 | 保存成功後にリクエスト一覧へリダイレクト | **実装済み** | `app/stylist/calendar-select/page.tsx:66` |
+| 11.8 | GET /api/auth/google/calendars で一覧取得 | **実装済み** | `app/api/auth/google/calendars/route.ts:8-36` |
+| 11.9 | writer/owner のみフィルタ | **実装済み** | `app/api/auth/google/calendars/route.ts:24` |
+| 11.10 | トークン不在時に HTTP 401 | **実装済み** | `app/api/auth/google/calendars/route.ts:10-14` |
+| 11.11 | POST で calendarId を Firestore に保存 | **実装済み** | `app/api/auth/google/calendar-select/route.ts:18` |
+| 11.12 | calendarId 未指定時に HTTP 400 | **実装済み** | `app/api/auth/google/calendar-select/route.ts:12-15` |
+| 11.13 | 承認時に selectedCalendarId を使用 | **実装済み** | `approve/route.ts:117` |
+| 11.14 | selectedCalendarId 未保存時は primary フォールバック | **実装済み** | `approve/route.ts:117` |
+| 11.15 | 認証ページに現在のカレンダー名 + 変更リンク表示 | **実装済み** | `app/stylist/auth/page.tsx:65-76` |
+| 11.16 | status API で selectedCalendarId/Name を返す | **実装済み** | `app/api/auth/google/status/route.ts:11-12` |
+| 11.17 | 再認証時に既存 selectedCalendarId を保持 | **実装済み** | `app/api/auth/google/callback/route.ts:33,42-43` |
+| 11.18 | 再認証時にカレンダー選択済みなら requests へ直接リダイレクト | **実装済み** | `app/api/auth/google/callback/route.ts:49-51` |
+
+**カバレッジ: 18/18 (100%)**
+
+### Requirement 12: マルチスタイリスト識別
+
+| AC# | 要件 | 実装状況 | 対応ファイル |
+|-----|------|----------|-------------|
+| 12.1 | OAuth スコープに openid + userinfo.email 追加 | **実装済み** | `lib/google-auth.ts:4-7` |
+| 12.2 | OAuth コールバックで email 取得 | **実装済み** | `app/api/auth/google/callback/route.ts:31` |
+| 12.3 | Firestore ドキュメント ID にメールアドレス使用 | **実装済み** | `app/api/auth/google/callback/route.ts:47` |
+| 12.4 | stylist_email Cookie セット（HttpOnly, 1年） | **実装済み** | `app/api/auth/google/callback/route.ts:57-62` |
+| 12.5 | 認証状態 API が Cookie からスタイリスト ID 取得 | **実装済み** | `app/api/auth/google/status/route.ts:7` |
+| 12.6 | カレンダー一覧 API が Cookie からスタイリスト ID 取得 | **実装済み** | `app/api/auth/google/calendars/route.ts:8` |
+| 12.7 | カレンダー選択 API が Cookie からスタイリスト ID 取得 | **実装済み** | `app/api/auth/google/calendar-select/route.ts:7` |
+| 12.8 | 承認 API が Cookie からスタイリスト ID 取得 | **実装済み** | `app/api/stylist/requests/[id]/approve/route.ts:49` |
+| 12.9 | Cookie 不在時に HTTP 401 | **実装済み** | 上記全 API ルート |
+| 12.10 | 認証状態 API がメールアドレスを返却 | **実装済み** | `app/api/auth/google/status/route.ts:20` |
+| 12.11 | 認証ページにメールアドレス表示 | **実装済み** | `app/stylist/auth/page.tsx:59-63` |
+| 12.12 | 異なるアカウントで別々の Firestore ドキュメントに保存 | **実装済み** | `app/api/auth/google/callback/route.ts:31,47` |
+
+**カバレッジ: 12/12 (100%)**
+
 ---
 
 ## 3. 全体カバレッジサマリー
@@ -186,7 +230,9 @@
 | 8: 予約承認 API | 12 | 12 | 0 | 100% |
 | 9: 予約拒否 API | 5 | 5 | 0 | 100% |
 | 10: UI 共通仕様 | 4 | 4 | 0 | 100% |
-| **合計** | **68** | **68** | **0** | **100%** |
+| 11: Google Calendar 選択機能 | 18 | 18 | 0 | 100% |
+| 12: マルチスタイリスト識別 | 12 | 12 | 0 | 100% |
+| **合計** | **98** | **98** | **0** | **100%** |
 
 ---
 
@@ -199,9 +245,6 @@
 - 認証状態 API は `access_token` の存在のみで判定（期限切れでも `true`）
 - `googleapis` ライブラリの暗黙的リフレッシュに依存
 - リフレッシュ後の新トークンの Firestore 書き戻しなし
-
-### スタイリスト識別
-- `STYLIST_ID = 'default-stylist'` のハードコード（マルチスタイリスト未対応）
 
 ### 重複コード
 - `formatDateTime` が一覧ページと詳細ページで重複定義
@@ -219,13 +262,12 @@
 ## 6. 設計フェーズへの推奨事項
 
 ### 結論
-スタイリスト予約管理フロー（stylist-management）は、全 68 件の Acceptance Criteria が既存 MVP コードで **100% カバー** されている。追加の実装タスクは不要。
+スタイリスト予約管理フロー（stylist-management）は、全 98 件の Acceptance Criteria が既存 MVP コードで **100% カバー** されている。追加の実装タスクは不要。
 
 ### 将来的な改善候補（設計フェーズで検討）
 1. **トークン有効期限管理**: 期限切れ検知 + リフレッシュ後のトークン永続化
 2. **重複コードの共通化**: `formatDateTime`, `StatusBadge` のコンポーネント抽出
-3. **マルチスタイリスト対応**: ハードコードされた `STYLIST_ID` の動的化
-4. **テスト戦略**: API Routes のインテグレーションテスト
+3. **テスト戦略**: API Routes のインテグレーションテスト
 
 ### Research Needed
 - **トークンリフレッシュ**: googleapis ライブラリの自動リフレッシュ動作の詳細検証（リフレッシュ後の `on('tokens')` イベントでの書き戻し等）
