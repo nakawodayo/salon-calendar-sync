@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createOAuth2Client, getTokenFromCode, getUserEmail } from '@/lib/google-auth';
+import { createOAuth2Client, getTokenFromCode, getEmailFromIdToken } from '@/lib/google-auth';
 import { saveStylistToken, getStylistToken } from '@/lib/firestore';
 import type { StylistToken } from '@/types/reservation';
 
@@ -27,8 +27,11 @@ export async function GET(request: NextRequest) {
     const oauth2Client = createOAuth2Client();
     const tokens = await getTokenFromCode(oauth2Client, code);
 
-    // userinfo API からメールアドレスを取得
-    const email = await getUserEmail(oauth2Client);
+    // id_token からメールアドレスを取得
+    if (!tokens.id_token) {
+      throw new Error('id_token が取得できませんでした');
+    }
+    const email = getEmailFromIdToken(tokens.id_token);
 
     // 既存トークンからカレンダー選択を取得（再認証時の引き継ぎ）
     const existingToken = await getStylistToken(email);

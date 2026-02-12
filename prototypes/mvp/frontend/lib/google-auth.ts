@@ -61,13 +61,15 @@ export function getCalendarClient(oauth2Client: InstanceType<typeof google.auth.
 }
 
 /**
- * OAuth2 クライアントからユーザーのメールアドレスを取得
+ * トークンレスポンスの id_token からメールアドレスを取得
+ * openid + email スコープで取得した id_token (JWT) をデコードする
  */
-export async function getUserEmail(oauth2Client: InstanceType<typeof google.auth.OAuth2>): Promise<string> {
-  const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
-  const { data } = await oauth2.userinfo.get();
-  if (!data.email) {
-    throw new Error('メールアドレスを取得できませんでした');
+export function getEmailFromIdToken(idToken: string): string {
+  const payload = JSON.parse(
+    Buffer.from(idToken.split('.')[1], 'base64url').toString()
+  );
+  if (!payload.email) {
+    throw new Error('id_token にメールアドレスが含まれていません');
   }
-  return data.email;
+  return payload.email;
 }
