@@ -1,4 +1,7 @@
 {
+  "env": {
+    "API_TIMEOUT_MS": "600000"
+  },
   "permissions": {
     "allow": [
       "WebSearch",
@@ -7,12 +10,11 @@
       "Bash(git mv docs/ai-philosophy/research/2025-11-11-database-necessity.md docs/ai-philosophy/research/database-necessity.md)",
       "Bash(git mv docs/ai-philosophy/research/2025-11-11-clean-architecture.md docs/ai-philosophy/research/clean-architecture.md)",
       "Bash(git mv docs/ai-philosophy/research/2025-11-11-framework-selection.md docs/ai-philosophy/research/framework-selection.md)",
-      "Bash(git mv docs/ai-philosophy/research/2025-11-12-google-calendar-api-auth-flow.md docs/ai-philosophy/research/google-calendar-api-auth-flow.md)"
+      "Bash(git mv docs/ai-philosophy/research/2025-11-12-google-calendar-api-auth-flow.md docs/ai-philosophy/research/google-calendar-api-auth-flow.md)",
+      "Bash(yes:*)",
+      "Bash(npx create-next-app@latest:*)"
     ],
     "deny": [],
     "ask": []
-  },
-  "env": {
-    "API_TIMEOUT_MS": "600000"
   }
 }
