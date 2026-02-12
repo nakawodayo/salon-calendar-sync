@@ -31,13 +31,25 @@ export async function createReservation(data: CreateReservationRequestData): Pro
 }
 
 /**
+ * Firestore ドキュメントを ReservationRequest に変換（Timestamp → ISO文字列）
+ */
+function toReservation(id: string, data: Record<string, unknown>): ReservationRequest {
+  return {
+    ...data,
+    id,
+    createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : data.createdAt,
+    updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : data.updatedAt,
+  } as ReservationRequest;
+}
+
+/**
  * 予約リクエストを ID で取得
  */
 export async function getReservation(id: string): Promise<ReservationRequest | null> {
   const docRef = doc(db, RESERVATIONS_COLLECTION, id);
   const docSnap = await getDoc(docRef);
   if (!docSnap.exists()) return null;
-  return { id: docSnap.id, ...docSnap.data() } as ReservationRequest;
+  return toReservation(docSnap.id, docSnap.data());
 }
 
 /**
@@ -50,7 +62,7 @@ export async function getReservationsByCustomer(customerId: string): Promise<Res
     orderBy('createdAt', 'desc')
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as ReservationRequest));
+  return snapshot.docs.map((d) => toReservation(d.id, d.data()));
 }
 
 /**
@@ -62,7 +74,7 @@ export async function getAllReservations(): Promise<ReservationRequest[]> {
     orderBy('createdAt', 'desc')
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as ReservationRequest));
+  return snapshot.docs.map((d) => toReservation(d.id, d.data()));
 }
 
 /**
