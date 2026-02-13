@@ -45,11 +45,19 @@ function StatusBadge({ status }: { status: ReservationStatus }) {
   );
 }
 
+const FILTER_TABS: { value: ReservationStatus | 'all'; label: string }[] = [
+  { value: 'all', label: '全件' },
+  { value: 'requested', label: '未対応' },
+  { value: 'fixed', label: '承認済み' },
+  { value: 'rejected', label: '却下' },
+];
+
 export default function StylistRequestsPage() {
   const [reservations, setReservations] = useState<ReservationRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [authStatus, setAuthStatus] = useState<boolean | null>(null);
+  const [filterStatus, setFilterStatus] = useState<ReservationStatus | 'all'>('all');
 
   useEffect(() => {
     fetchReservations();
@@ -145,6 +153,34 @@ export default function StylistRequestsPage() {
           </div>
         )}
 
+        {/* Filter Tabs */}
+        {!loading && !error && reservations.length > 0 && (
+          <div className="flex gap-1 mb-4 bg-white rounded-lg border border-gray-200 p-1">
+            {FILTER_TABS.map((tab) => {
+              const count = tab.value === 'all'
+                ? reservations.length
+                : reservations.filter(r => r.status === tab.value).length;
+              const isActive = filterStatus === tab.value;
+              return (
+                <button
+                  key={tab.value}
+                  onClick={() => setFilterStatus(tab.value)}
+                  className={`flex-1 px-3 py-2 text-sm rounded-md transition-all ${
+                    isActive
+                      ? 'bg-blue-600 text-white font-bold shadow-sm'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  {tab.label}
+                  <span className={`ml-1 ${isActive ? 'text-blue-100' : 'text-gray-400'}`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {/* Loading */}
         {loading && (
           <div className="text-center py-12">
@@ -178,10 +214,22 @@ export default function StylistRequestsPage() {
           </div>
         )}
 
+        {/* Filtered Empty State */}
+        {!loading && !error && reservations.length > 0 && filterStatus !== 'all' &&
+          reservations.filter(r => r.status === filterStatus).length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-sm">該当するリクエストはありません</p>
+          </div>
+        )}
+
         {/* Request List */}
-        {!loading && !error && reservations.length > 0 && (
+        {!loading && !error && (() => {
+          const filtered = filterStatus === 'all'
+            ? reservations
+            : reservations.filter(r => r.status === filterStatus);
+          return filtered.length > 0 && (
           <div className="space-y-3">
-            {reservations.map((reservation) => (
+            {filtered.map((reservation) => (
               <Link
                 key={reservation.id}
                 href={`/stylist/requests/${reservation.id}`}
@@ -211,7 +259,8 @@ export default function StylistRequestsPage() {
               </Link>
             ))}
           </div>
-        )}
+          );
+        })()}
       </main>
     </div>
   );
