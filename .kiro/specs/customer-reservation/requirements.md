@@ -76,3 +76,20 @@ LINE LIFF アプリを通じた顧客向け予約リクエスト機能。顧客�
 2. The LIFF App shall モバイルファーストのレスポンシブレイアウトを採用する
 3. The LIFF App shall ブランドカラー（緑: green-600）をヘッダーとプライマリボタンに一貫して使用する
 4. The LIFF App shall 各ページにヘッダーバーを表示し、サブページには戻るナビゲーションを含める
+
+### Requirement 8: ホーム画面 次回予約表示
+**Objective:** As a 顧客, I want ホーム画面で次回の確定済み予約を確認できること, so that 予約一覧を開かなくても次の予約日時がわかる
+
+#### Acceptance Criteria
+1. When ホーム画面が表示されたとき, the LIFF App shall 確定済み予約のうち未来の直近1件を取得して「次回のご予約」カードに表示する
+2. When 確定済みの未来の予約が存在しないとき, the LIFF App shall 「現在確定している予約はありません」メッセージを表示する
+3. The LIFF App shall 次回予約カードに日付・時刻・メニュー名を表示する
+
+### Requirement 9: 次回予約 API
+**Objective:** As a システム, I want 特定の顧客の次回確定済み予約を返すこと, so that ホーム画面で直近の予約情報を表示できる
+
+#### Acceptance Criteria
+1. When `GET /api/reservations/next?customerId={id}` にリクエストが送信されたとき, the Reservation API shall 確定済み（`fixed`）かつ未来の予約のうち直近1件を HTTP 200 で返す
+2. If customerId クエリパラメータが指定されていない場合, then the Reservation API shall 「customerId パラメータが必要です」エラーを HTTP 400 で返す
+3. When 該当する予約が存在しないとき, the Reservation API shall `{ reservation: null }` を HTTP 200 で返す
+4. If Firestore からの読み取りに失敗した場合, then the Reservation API shall 「次回予約の取得に失敗しました」エラーを HTTP 500 で返す

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { initializeLiff, getUserProfile } from '@/lib/liff';
+import type { ReservationRequest } from '@/types/reservation';
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
@@ -11,6 +12,7 @@ export default function Home() {
     userId: string;
     displayName: string;
   } | null>(null);
+  const [nextReservation, setNextReservation] = useState<ReservationRequest | null>(null);
 
   useEffect(() => {
     const init = async () => {
@@ -23,6 +25,17 @@ export default function Home() {
         await initializeLiff(liffId);
         const userProfile = await getUserProfile();
         setProfile(userProfile);
+
+        // 次回確定済み予約を取得
+        try {
+          const res = await fetch(`/api/reservations/next?customerId=${userProfile.userId}`);
+          if (res.ok) {
+            const data = await res.json();
+            setNextReservation(data.reservation);
+          }
+        } catch (e) {
+          console.error('Failed to fetch next reservation:', e);
+        }
       } catch (err) {
         console.error('Initialization error:', err);
         setError(
@@ -77,6 +90,34 @@ export default function Home() {
           <p className="text-lg font-semibold text-gray-800">
             {profile?.displayName} さん
           </p>
+        </div>
+      </div>
+
+      {/* Next Reservation */}
+      <div className="px-4">
+        <div className="rounded-lg bg-white p-4 shadow-sm">
+          <h2 className="mb-2 text-sm font-semibold text-gray-500">次回のご予約</h2>
+          {nextReservation ? (
+            <div className="space-y-1">
+              <p className="text-lg font-semibold text-gray-800">
+                {new Date(nextReservation.requestedDateTime).toLocaleDateString('ja-JP', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  weekday: 'short',
+                })}
+              </p>
+              <p className="text-base text-gray-700">
+                {new Date(nextReservation.requestedDateTime).toLocaleTimeString('ja-JP', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </p>
+              <p className="text-sm text-green-600 font-medium">{nextReservation.menu}</p>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-400">現在確定している予約はありません</p>
+          )}
         </div>
       </div>
 

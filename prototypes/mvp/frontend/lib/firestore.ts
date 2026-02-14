@@ -8,6 +8,7 @@ import {
   query,
   where,
   orderBy,
+  limit,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from './firebase';
@@ -91,6 +92,25 @@ export async function updateReservationStatus(
     ...additionalData,
     updatedAt: Timestamp.now(),
   });
+}
+
+/**
+ * 顧客の次回確定済み予約を取得（未来の直近1件）
+ */
+export async function getNextFixedReservation(customerId: string): Promise<ReservationRequest | null> {
+  const now = new Date().toISOString();
+  const q = query(
+    collection(db, RESERVATIONS_COLLECTION),
+    where('customerId', '==', customerId),
+    where('status', '==', 'fixed'),
+    where('requestedDateTime', '>=', now),
+    orderBy('requestedDateTime', 'asc'),
+    limit(1)
+  );
+  const snapshot = await getDocs(q);
+  if (snapshot.empty) return null;
+  const d = snapshot.docs[0];
+  return toReservation(d.id, d.data());
 }
 
 /**
